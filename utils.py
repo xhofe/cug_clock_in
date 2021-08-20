@@ -63,7 +63,7 @@ def ocr(content):
   result = pytesseract.image_to_string(bi_im,config='--psm 10 --oem 3 -c tessedit_char_whitelist=0123456789')
   return result
 
-def notic(key,msg):
+def notice(key,msg):
   if key:
     requests.get('https://qmsg.zendee.cn/send/{}?msg={}'.format(key,msg))
 
