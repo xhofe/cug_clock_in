@@ -116,7 +116,6 @@ class ClockIn:
         "LXDH": info["LXDH"],
         "JJLXRGX_DISPLAY": "",
         "XH": info["XH"],
-        "ZSDZ": info["ZSDZ"],
         "XM": info["XM"],
         "SFJZ_DISPLAY": "",
         "XQDM_DISPLAY": "",
@@ -137,6 +136,9 @@ class ClockIn:
         "QTQK": "一切正常",
         "SJD": SJD
       }
+      # 可能没有宿舍信息
+      if('ZSDZ' in info):
+        data['ZSDZ'] = info["ZSDZ"]
       r = s.post('http://yqapp.cug.edu.cn/xsfw/sys/swmxsyqxxsjapp/modules/mrbpa/saveMrdk.do',data={'data':json.dumps(data)})
       if(r.json()['code'] == "0"):
         print('打卡成功')
