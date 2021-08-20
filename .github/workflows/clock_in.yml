@@ -1,0 +1,50 @@
+name: clock_in
+
+on:
+  push:
+    branches: [ main ]
+  schedule:
+    - cron: "0 0 * * *"
+
+jobs:
+  clock-in:
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v2
+      -
+        name: Set up Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: '12'
+
+      - 
+        name: des
+        run: |
+          cd des
+          yarn install
+          nohup node app.js > /dev/null 2>&1 &
+          cd ..
+
+      - 
+        name: Set up python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+          architecture: 'x64'
+
+      - 
+        name: Install dependencies
+        run: |
+          sudo apt install tesseract-ocr
+          sudo apt install libtesseract-dev
+          pip install -r requirements.txt
+
+      - 
+        name: clock in
+        run: python clock_in.py
+        env:
+          CUG_ID: ${{ secrets.CUG_ID }}
+          CUG_PWD: ${{ secrets.CUG_PWD }}
+          QMSG_TOKEN: ${{ secrets.QMSG_TOKEN }}
