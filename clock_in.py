@@ -15,12 +15,12 @@ password = os.getenv('CUG_PWD')
 if username is None or username == '':
   notic(qmsg_key,'无法获取CUG_ID')
   print('无法获取CUG_ID')
-  os._exit(1)
+  os._exit(0)
 
 if password is None or password == '':
   notic(qmsg_key,'无法获取CUG_PWD')
   print('无法获取CUG_PWD')
-  os._exit(1)
+  os._exit(0)
 
 class ClockIn:
   def __init__(self):
@@ -147,7 +147,7 @@ def do(name,method):
       return True
   notic(qmsg_key,'{}失败'.format(name))
   print('{}失败,退出'.format(name))
-  os._exit(1)
+  os._exit(0)
 
 if __name__ == '__main__':
   clock_in = ClockIn()
