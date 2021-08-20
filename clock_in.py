@@ -13,12 +13,12 @@ username = os.getenv('CUG_ID')
 password = os.getenv('CUG_PWD')
 
 if username is None or username == '':
-  notic(qmsg_key,'无法获取CUG_ID')
+  notice(qmsg_key,'无法获取CUG_ID')
   print('无法获取CUG_ID')
   os._exit(0)
 
 if password is None or password == '':
-  notic(qmsg_key,'无法获取CUG_PWD')
+  notice(qmsg_key,'无法获取CUG_PWD')
   print('无法获取CUG_PWD')
   os._exit(0)
 
@@ -58,7 +58,6 @@ class ClockIn:
       '_eventId': 'submit',
       'rsa': self.des(username+password+lt),
     }
-    notic(qmsg_key,json.dumps(login_data))
     # 提交登录
     r = s.post('http://sfrz.cug.edu.cn{}'.format(form_uri), data=login_data)
     if(r.text.find('登录失败')==-1): #url=/tp_up/
@@ -83,6 +82,7 @@ class ClockIn:
   def clock_in(self):
     s = self.session
     # 获取个人信息,必须一步一步的请求
+    SJD = get_sjd() #时间段
     try:
       print(s.post('http://yqapp.cug.edu.cn/xsfw/sys/swpubapp/MobileCommon/getSelRoleConfig.do',data={'data':'{"APPID":"5811260348942403","APPNAME":"swmxsyqxxsjapp"}'}).status_code)
       print(s.get('http://yqapp.cug.edu.cn/xsfw/sys/emappagelog/config/swmxsyqxxsjapp.do').status_code)
@@ -90,7 +90,7 @@ class ClockIn:
       print(s.post('http://yqapp.cug.edu.cn/xsfw/i18n.do?appName=swmxsyqxxsjapp&EMAP_LANG=zh').status_code)
       print(s.get('http://yqapp.cug.edu.cn/xsfw/sys/swpubapp/userinfo/getUserPhoto.do?USERID={}'.format(username)).status_code)
 
-      r = s.post('http://yqapp.cug.edu.cn/xsfw/sys/swmxsyqxxsjapp/modules/mrbpa/getStuXx.do', data={'data': '{"SJD":"1"}'}, verify=False)
+      r = s.post('http://yqapp.cug.edu.cn/xsfw/sys/swmxsyqxxsjapp/modules/mrbpa/getStuXx.do', data={'data': '{"SJD":"{}"}'.format(SJD)}, verify=False)
       
       info = r.json()['data']
       print("打卡账号:{}".format(info["XH"]))
@@ -126,12 +126,12 @@ class ClockIn:
         "JTCYJKZK": "1",
         "XLZK": "www",
         "QTQK": "一切正常",
-        "SJD": "1"
+        "SJD": SJD
       }
       r = s.post('http://yqapp.cug.edu.cn/xsfw/sys/swmxsyqxxsjapp/modules/mrbpa/saveMrdk.do',data={'data':json.dumps(data)})
       if(r.json()['code'] == "0"):
         print('打卡成功')
-        notic(qmsg_key,'{}打卡成功'.format(info["XM"]))
+        notice(qmsg_key,'{}打卡成功'.format(info["XM"]))
         return True
       else:
         print('打卡失败')
@@ -142,10 +142,9 @@ class ClockIn:
 def do(name,method):
   for i in range(try_time):
     print('第{}次尝试{}'.format(i+1,name))
-    notic(qmsg_key,'第{}次尝试{}'.format(i+1,name))
     if(method()):
       return True
-  notic(qmsg_key,'{}失败'.format(name))
+  notice(qmsg_key,'{}失败'.format(name))
   print('{}失败,退出'.format(name))
   os._exit(0)
 

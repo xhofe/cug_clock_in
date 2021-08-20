@@ -67,5 +67,23 @@ def notic(key,msg):
   if key:
     requests.get('https://qmsg.zendee.cn/send/{}?msg={}'.format(key,msg))
 
+def get_sjd():
+  import datetime
+  d_time0 = datetime.datetime.strptime(str(datetime.datetime.now().date())+'05:00', '%Y-%m-%d%H:%M')
+  d_time1 = datetime.datetime.strptime(str(datetime.datetime.now().date())+'11:30', '%Y-%m-%d%H:%M')
+  d_time2 = datetime.datetime.strptime(str(datetime.datetime.now().date())+'17:30', '%Y-%m-%d%H:%M')
+  d_time3 = datetime.datetime.strptime(str(datetime.datetime.now().date())+'23:30', '%Y-%m-%d%H:%M')
+  now = datetime.datetime.now()
+  if now < d_time0:
+    return '0'
+  elif now <= d_time1:
+    return '1'
+  elif now <= d_time2:
+    return '2'
+  elif now <= d_time3:
+    return '3'
+  else:
+    return '0'
+
 if __name__ == '__main__':
-  file_gif_to_png('./code.gif')
+  print(get_sjd())
