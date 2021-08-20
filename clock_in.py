@@ -36,46 +36,54 @@ class ClockIn:
   def login(self):
     # 登录页面，拿到登录所需要的数据
     s = self.session
-    html =s.get('http://sfrz.cug.edu.cn/tpass/login')
-    soup = BeautifulSoup(html.text, 'html.parser')
-    lt = soup.find('input', {'id': 'lt'})['value']
-    form_uri = soup.find('form', {'id': 'loginForm'})['action']
+    try:
+      html =s.get('http://sfrz.cug.edu.cn/tpass/login')
+      soup = BeautifulSoup(html.text, 'html.parser')
+      lt = soup.find('input', {'id': 'lt'})['value']
+      form_uri = soup.find('form', {'id': 'loginForm'})['action']
 
-    # 重新拿到验证码
-    r = s.get('http://sfrz.cug.edu.cn/tpass/code?{}'.format(random.random()))
-    # png = gif_to_png(gif)
-    # png.show()
-    code = ocr(r.content)
-    code = "".join(list(filter(str.isdigit, code)))
+      # 重新拿到验证码
+      r = s.get('http://sfrz.cug.edu.cn/tpass/code?{}'.format(random.random()))
+      # png = gif_to_png(gif)
+      # png.show()
+      code = ocr(r.content)
+      code = "".join(list(filter(str.isdigit, code)))
 
-    login_data = {
-      'code': code,
-      'ul': len(username),
-      'pl': len(password),
-      'sl': 0,
-      'lt': lt,
-      'execution': 'e1s1',
-      '_eventId': 'submit',
-      'rsa': self.des(username+password+lt),
-    }
-    # 提交登录
-    r = s.post('http://sfrz.cug.edu.cn{}'.format(form_uri), data=login_data)
-    if(r.text.find('登录失败')==-1): #url=/tp_up/
-      print('登录成功')
-      return True
-    else:
-      print('登录失败')
+      login_data = {
+        'code': code,
+        'ul': len(username),
+        'pl': len(password),
+        'sl': 0,
+        'lt': lt,
+        'execution': 'e1s1',
+        '_eventId': 'submit',
+        'rsa': self.des(username+password+lt),
+      }
+      # 提交登录
+      r = s.post('http://sfrz.cug.edu.cn{}'.format(form_uri), data=login_data)
+      if(r.text.find('登录失败')==-1): #url=/tp_up/
+        print('登录成功')
+        return True
+      else:
+        print('登录失败')
+        return False
+    except Exception as e:
+      print('登录失败{}'.format(e))
       return False
-  
+
   # 打开打卡页面
   def clock_in_page(self):
     s = self.session
-    r = s.get('http://yqapp.cug.edu.cn/xsfw/sys/swmxsyqxxsjapp/*default/index.do')
-    if(r.text.find('var SERVER_PATH =')!=-1):
-      print('打开打卡页面成功')
-      return True
-    else:
-      print('打开打卡页面失败')
+    try:
+      r = s.get('http://yqapp.cug.edu.cn/xsfw/sys/swmxsyqxxsjapp/*default/index.do')
+      if(r.text.find('var SERVER_PATH =')!=-1):
+        print('打开打卡页面成功')
+        return True
+      else:
+        print('打开打卡页面失败')
+        return False
+    except Exception as e:
+      print('打开打卡页面失败{}'.format(e))
       return False
   
   # 打卡
@@ -90,7 +98,7 @@ class ClockIn:
       print(s.post('http://yqapp.cug.edu.cn/xsfw/i18n.do?appName=swmxsyqxxsjapp&EMAP_LANG=zh').status_code)
       print(s.get('http://yqapp.cug.edu.cn/xsfw/sys/swpubapp/userinfo/getUserPhoto.do?USERID={}'.format(username)).status_code)
 
-      r = s.post('http://yqapp.cug.edu.cn/xsfw/sys/swmxsyqxxsjapp/modules/mrbpa/getStuXx.do', data={'data': '{"SJD":"{}"}'.format(SJD)}, verify=False)
+      r = s.post('http://yqapp.cug.edu.cn/xsfw/sys/swmxsyqxxsjapp/modules/mrbpa/getStuXx.do', data={'data': '{"SJD":"'+SJD+'"}'}, verify=False)
       
       info = r.json()['data']
       print("打卡账号:{}".format(info["XH"]))
