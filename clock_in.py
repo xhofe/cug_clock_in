@@ -8,6 +8,8 @@ from requests.sessions import session
 from bs4 import BeautifulSoup
 import json
 
+requests.adapters.DEFAULT_RETRIES = 5
+
 try_time = os.getenv('try_time',3)
 qmsg_key = os.getenv('QMSG_TOKEN')
 username = os.getenv('CUG_ID')
@@ -75,6 +77,10 @@ class ClockIn:
   # 打开打卡页面
   def clock_in_page(self):
     s = self.session
+    s.keep_alive = False
+    proxies = {
+
+    }
     try:
       r = s.get('http://yqapp.cug.edu.cn/xsfw/sys/swmxsyqxxsjapp/*default/index.do')
       if(r.text.find('var SERVER_PATH =')!=-1):
@@ -150,17 +156,18 @@ class ClockIn:
     except BaseException as e:
       print('打卡失败{}'.format(e))
       return False
-def do(name,method):
+def do(name,method,exit=True):
   for i in range(try_time):
     print('第{}次尝试{}'.format(i+1,name))
     if(method()):
       return True
   notice(qmsg_key,'{}失败'.format(name))
   print('{}失败,退出'.format(name))
-  sys.exit(1)
+  if(exit):
+    sys.exit(1)
 
 if __name__ == '__main__':
   clock_in = ClockIn()
   do('登录',clock_in.login)
-  do('打开打卡页面',clock_in.clock_in_page)
+  do('打开打卡页面',clock_in.clock_in_page,False)
   do('打卡',clock_in.clock_in)
